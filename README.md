@@ -39,7 +39,7 @@ The project consists of one single Python class that contain the following calla
        Takes the parameters:
         * `base_path` - Testing directory's full path
         * `password` - Not required. defaults to the password: **supersecret**
-    3. `run_mal_action()` - ⚠️ USE CATION!! ⚠️ - Will encrypt the entire file system found files
+    3. `run_mal_action()` - ⚠️ USE CAUTION!! ⚠️ - Will encrypt the entire file system found files
        Takes the parameters:
         * `password` - Choose a password for the full encryption
     4. `run_decrypt()` - Will decrypt all encrypted files the method will be run against
@@ -61,7 +61,7 @@ There are two mechanisms exist in the code
   * Waits for a given time (duration), then renames them back.
   * Simulates temporary denial-of-access behavior.
 
-Real ransomware will sometimes will disrupts the access to files or the system beyond just encryption.
+Real ransomware will sometimes disrupt the access to files or the system beyond just encryption.
 While encryption handles data confidentiality, the simulated locking mechanisms simulate disruption and urgency for the
 victim,
 
